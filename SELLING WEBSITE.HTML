@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SleekTech Emporium</title>
+    <!-- Use Inter font from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .modal-content-ai {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-gray-800">SleekTech Emporium</a>
+            <div class="relative">
+                <button id="cartButton" class="relative p-2 rounded-full bg-gray-100 text-gray-600 hover:text-gray-900 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.182 1.701.705 1.701H17m0-10a2 2 0 110 4 2 2 0 010-4z" />
+                    </svg>
+                    <span id="cartCount" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full transform translate-x-1/2 -translate-y-1/2">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Product Grid -->
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
+        <h1 class="text-3xl sm:text-4xl font-bold text-center mb-8 text-gray-800">ANITA HAND CRAFT</h1>
+        <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Product cards will be dynamically generated here -->
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white p-4 mt-8">
+        <div class="container mx-auto text-center text-sm">
+            <p>&copy; 2024 SleekTech Emporium. All rights reserved.</p>
+            <p class="mt-2 text-gray-400">Your User ID: <span id="userIdDisplay" class="font-mono text-xs break-all"></span></p>
+        </div>
+    </footer>
+
+    <!-- Cart Modal -->
+    <div id="cartModal" class="fixed inset-0 z-50 overflow-y-auto hidden">
+        <div class="flex items-center justify-center min-h-screen px-4 py-8">
+            <div id="cartOverlay" class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity duration-300"></div>
+            <div class="relative bg-white rounded-xl shadow-lg w-full max-w-2xl transform transition-all duration-300 scale-95 opacity-0">
+                <div class="flex justify-between items-center p-6 border-b border-gray-200">
+                    <h2 class="text-2xl font-bold text-gray-800">Your Shopping Cart</h2>
+                    <button id="closeCartButton" class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="cartItems" class="p-6 max-h-96 overflow-y-auto">
+                    <!-- Cart items will be dynamically added here -->
+                    <p id="emptyCartMessage" class="text-center text-gray-500 hidden">Your cart is empty.</p>
+                </div>
+                <div class="p-6 border-t border-gray-200 flex justify-between items-center">
+                    <span class="text-xl font-bold text-gray-800">Total: <span id="cartTotal">$0.00</span></span>
+                    <button class="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-200 font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed">
+                        Checkout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- AI Info Modal -->
+    <div id="aiInfoModal" class="fixed inset-0 z-50 overflow-y-auto hidden">
+        <div class="flex items-center justify-center min-h-screen px-4 py-8">
+            <div id="aiInfoOverlay" class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity duration-300"></div>
+            <div class="relative bg-white rounded-xl shadow-lg w-full max-w-xl transform transition-all duration-300 scale-95 opacity-0">
+                <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-gray-800">AI Product Assistant ✨</h2>
+                    <button id="closeAiInfoButton" class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="p-6 modal-content-ai">
+                    <h3 id="aiProductTitle" class="text-xl font-bold mb-2"></h3>
+                    <p id="aiProductDescription" class="text-gray-600 mb-4"></p>
+                    <div id="aiResponseContainer" class="bg-gray-100 p-4 rounded-lg">
+                        <p id="aiResponseText" class="text-gray-800 text-sm italic">
+                            Enter a prompt and click 'Generate' to learn more about this product!
+                        </p>
+                    </div>
+                    <div class="mt-4 flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                        <input id="aiPromptInput" type="text" class="w-full sm:flex-grow p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., 'who is this for?' or 'list some key specs'">
+                        <button id="generateAiButton" class="w-full sm:w-auto bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-200 font-semibold disabled:bg-gray-400">
+                            Generate
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Firebase Scripts -->
+    <script type="module">
+        // Import necessary Firebase services from CDN
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // Firebase setup and initialization
+        // These are global variables provided by the Canvas environment.
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Initialize Firebase app
+        let app, db, auth;
+        try {
+            if (Object.keys(firebaseConfig).length > 0) {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+            } else {
+                console.error("Firebase config is missing. The app will run without database functionality.");
+            }
+            setLogLevel('Debug');
+        } catch (e) {
+            console.error("Failed to initialize Firebase:", e);
+        }
+
+        let userId = null;
+        let isAuthReady = false;
+        
+        // Products data
+        const products = [
+            { id: '1', name: 'MOBILE BAG', price: 99, imageUrl: 'file:///C:/Users/HRIDDHI%20NEW/Downloads/WhatsApp%20Image%202025-09-03%20at%207.42.21%20AM.jpeg', description: 'This made by jute,this weight is 50gm.' },
+            { id: '2', name: 'Smartwatch', price: 199.99, imageUrl: 'https://placehold.co/400x300/d1d5db/374151?text=Smartwatch', description: 'Track your health and stay connected on the go.' },
+            { id: '3', name: 'Mechanical Keyboard', price: 129.99, imageUrl: 'https://placehold.co/400x300/9ca3af/1f2937?text=Keyboard', description: 'Tactile feedback and customizable RGB lighting for gamers.' },
+            { id: '4', name: 'Portable SSD', price: 79.99, imageUrl: 'https://placehold.co/400x300/6b7280/111827?text=SSD', description: 'Store and transfer files at lightning-fast speeds.' },
+            { id: '5', name: '4K Monitor', price: 349.99, imageUrl: 'https://placehold.co/400x300/4b5563/d1d5db?text=Monitor', description: 'Stunning visuals and incredible detail for work and play.' },
+            { id: '6', name: 'Ergonomic Mouse', price: 49.99, imageUrl: 'https://placehold.co/400x300/374151/9ca3af?text=Mouse', description: 'Designed for comfort to reduce wrist strain during long sessions.' },
+            { id: '7', name: 'Laptop Stand', price: 29.99, imageUrl: 'https://placehold.co/400x300/1f2937/d1d5db?text=Stand', description: 'Improve your posture and keep your laptop cool with a sleek stand.' },
+            { id: '8', name: 'Webcam', price: 89.99, imageUrl: 'https://placehold.co/400x300/9ca3af/1f2937?text=Webcam', description: 'Crystal clear video quality for video calls and streaming.' }
+        ];
+
+        // UI elements
+        const productGrid = document.getElementById('productGrid');
+        const cartButton = document.getElementById('cartButton');
+        const closeCartButton = document.getElementById('closeCartButton');
+        const cartModal = document.getElementById('cartModal');
+        const cartOverlay = document.getElementById('cartOverlay');
+        const cartItemsContainer = document.getElementById('cartItems');
+        const cartCountDisplay = document.getElementById('cartCount');
+        const cartTotalDisplay = document.getElementById('cartTotal');
+        const emptyCartMessage = document.getElementById('emptyCartMessage');
+        const userIdDisplay = document.getElementById('userIdDisplay');
+        
+        // New AI Modal elements
+        const aiInfoModal = document.getElementById('aiInfoModal');
+        const aiInfoOverlay = document.getElementById('aiInfoOverlay');
+        const closeAiInfoButton = document.getElementById('closeAiInfoButton');
+        const aiProductTitle = document.getElementById('aiProductTitle');
+        const aiProductDescription = document.getElementById('aiProductDescription');
+        const aiResponseText = document.getElementById('aiResponseText');
+        const aiPromptInput = document.getElementById('aiPromptInput');
+        const generateAiButton = document.getElementById('generateAiButton');
+
+        // Render products on the page
+        function renderProducts() {
+            productGrid.innerHTML = products.map(product => `
+                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col items-center text-center transition-transform transform hover:scale-105 duration-200">
+                    <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-48 object-cover rounded-md mb-4 border border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">${product.name}</h3>
+                    <p class="text-sm text-gray-500 mb-4 flex-grow">${product.description}</p>
+                    <div class="flex justify-between items-center w-full mt-auto">
+                        <span class="text-lg font-bold text-gray-900">$${product.price.toFixed(2)}</span>
+                    </div>
+                    <div class="flex flex-col sm:flex-row w-full mt-4 space-y-2 sm:space-y-0 sm:space-x-2">
+                         <button data-product-id="${product.id}" class="openAiInfoBtn w-full bg-gray-200 text-gray-800 px-4 py-2 rounded-lg shadow-sm hover:bg-gray-300 transition-colors duration-200 font-semibold text-sm">
+                            ✨ AI Product Info
+                        </button>
+                        <button data-product-id="${product.id}" class="addToCartBtn w-full bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-200 font-semibold text-sm">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render cart items in the modal
+        function renderCart(cartItems) {
+            cartItemsContainer.innerHTML = '';
+            let total = 0;
+            if (cartItems.length === 0) {
+                emptyCartMessage.classList.remove('hidden');
+            } else {
+                emptyCartMessage.classList.add('hidden');
+                cartItems.forEach(item => {
+                    const product = products.find(p => p.id === item.productId);
+                    if (product) {
+                        total += product.price * item.quantity;
+                        const itemElement = document.createElement('div');
+                        itemElement.className = 'flex items-center justify-between py-4 border-b last:border-b-0 border-gray-100';
+                        itemElement.innerHTML = `
+                            <div class="flex items-center space-x-4">
+                                <img src="${product.imageUrl}" alt="${product.name}" class="w-16 h-16 object-cover rounded-md">
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">${product.name}</h4>
+                                    <p class="text-sm text-gray-500">Quantity: ${item.quantity}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <span class="font-bold text-gray-900">$${(product.price * item.quantity).toFixed(2)}</span>
+                                <button data-doc-id="${item.id}" class="removeFromCartBtn text-red-500 hover:text-red-700 transition-colors duration-200 focus:outline-none">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-9V7a2 2 0 00-2-2H9a2 2 0 00-2 2v2m.78 3.73l-.68.68A.999.999 0 004 18.2V20h16v-1.8a.999.999 0 00-.73-.97l-.68-.68" />
+                                    </svg>
+                                </button>
+                            </div>
+                        `;
+                        cartItemsContainer.appendChild(itemElement);
+                    }
+                });
+            }
+            cartCountDisplay.textContent = cartItems.length;
+            cartTotalDisplay.textContent = `$${total.toFixed(2)}`;
+        }
+
+        // Toggle cart modal visibility
+        function toggleCartModal(show) {
+            if (show) {
+                cartModal.classList.remove('hidden');
+                setTimeout(() => {
+                    cartOverlay.classList.remove('opacity-0');
+                    cartModal.querySelector('.relative').classList.remove('scale-95', 'opacity-0');
+                    cartModal.querySelector('.relative').classList.add('scale-100', 'opacity-100');
+                }, 10);
+            } else {
+                cartOverlay.classList.add('opacity-0');
+                cartModal.querySelector('.relative').classList.add('scale-95', 'opacity-0');
+                cartModal.querySelector('.relative').classList.remove('scale-100', 'opacity-100');
+                setTimeout(() => {
+                    cartModal.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        // Toggle AI Info modal visibility
+        function toggleAiInfoModal(show) {
+            if (show) {
+                aiInfoModal.classList.remove('hidden');
+                setTimeout(() => {
+                    aiInfoOverlay.classList.remove('opacity-0');
+                    aiInfoModal.querySelector('.relative').classList.remove('scale-95', 'opacity-0');
+                    aiInfoModal.querySelector('.relative').classList.add('scale-100', 'opacity-100');
+                }, 10);
+            } else {
+                aiInfoOverlay.classList.add('opacity-0');
+                aiInfoModal.querySelector('.relative').classList.add('scale-95', 'opacity-0');
+                aiInfoModal.querySelector('.relative').classList.remove('scale-100', 'opacity-100');
+                setTimeout(() => {
+                    aiInfoModal.classList.add('hidden');
+                }, 300);
+            }
+        }
+        
+        // Function to call the Gemini API
+        async function getAIInfo(product, prompt) {
+            let retryCount = 0;
+            const maxRetries = 3;
+            const backoffDelay = 1000;
+        
+            while (retryCount < maxRetries) {
+                try {
+                    const systemPrompt = "You are a friendly and creative product information assistant. Based on the product name and description provided, answer the user's question in a helpful and engaging way. Keep the response concise and easy to read. Use emojis where appropriate.";
+                    const userQuery = `Product Name: ${product.name}\nProduct Description: ${product.description}\n\nUser Question: ${prompt}`;
+                    
+                    const payload = {
+                        contents: [{ parts: [{ text: userQuery }] }],
+                        systemInstruction: {
+                            parts: [{ text: systemPrompt }]
+                        },
+                    };
+        
+                    const apiKey = "";
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+        
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+        
+                    if (!response.ok) {
+                        throw new Error(`API error: ${response.status} ${response.statusText}`);
+                    }
+        
+                    const result = await response.json();
+                    const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (text) {
+                        return text;
+                    } else {
+                        throw new Error("API response was empty or malformed.");
+                    }
+                } catch (error) {
+                    console.error("Error calling Gemini API:", error);
+                    retryCount++;
+                    if (retryCount < maxRetries) {
+                        await new Promise(resolve => setTimeout(resolve, backoffDelay * Math.pow(2, retryCount)));
+                    }
+                }
+            }
+            return "Sorry, I couldn't generate that information right now. Please try again later.";
+        }
+
+        // Main function to run when the page loads
+        window.onload = function() {
+            renderProducts();
+            
+            // Set up a listener for Firebase Auth state changes
+            if (auth) {
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        // User is signed in.
+                        userId = user.uid;
+                        userIdDisplay.textContent = userId;
+                        isAuthReady = true;
+                        
+                        // Set up real-time listener for the user's cart
+                        const cartCollection = collection(db, `artifacts/${appId}/users/${userId}/cart`);
+                        onSnapshot(cartCollection, (snapshot) => {
+                            const cartItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                            renderCart(cartItems);
+                        });
+                    } else {
+                        // User is signed out.
+                        isAuthReady = false;
+                        userId = crypto.randomUUID();
+                        userIdDisplay.textContent = "Not authenticated, using random ID for testing: " + userId;
+                        try {
+                            if (initialAuthToken) {
+                                await signInWithCustomToken(auth, initialAuthToken);
+                            } else {
+                                await signInAnonymously(auth);
+                            }
+                        } catch (error) {
+                            console.error("Firebase auth error:", error);
+                        }
+                    }
+                });
+            }
+        
+            // Event listeners
+            cartButton.addEventListener('click', () => toggleCartModal(true));
+            closeCartButton.addEventListener('click', () => toggleCartModal(false));
+            cartOverlay.addEventListener('click', () => toggleCartModal(false));
+            closeAiInfoButton.addEventListener('click', () => toggleAiInfoModal(false));
+            aiInfoOverlay.addEventListener('click', () => toggleAiInfoModal(false));
+
+            document.addEventListener('click', async (event) => {
+                const target = event.target.closest('button');
+                if (!target) return;
+
+                if (target.classList.contains('addToCartBtn') && isAuthReady) {
+                    const productId = target.dataset.productId;
+                    const productToAdd = products.find(p => p.id === productId);
+                    if (!productToAdd) return;
+        
+                    try {
+                        const cartItemRef = doc(db, `artifacts/${appId}/users/${userId}/cart/${productId}`);
+                        const docSnap = await getDoc(cartItemRef);
+        
+                        if (docSnap.exists()) {
+                            // Item already exists, update the quantity
+                            const currentQuantity = docSnap.data().quantity;
+                            await updateDoc(cartItemRef, { quantity: currentQuantity + 1 });
+                        } else {
+                            // Add a new item to the cart
+                            await setDoc(cartItemRef, {
+                                productId: productToAdd.id,
+                                name: productToAdd.name,
+                                price: productToAdd.price,
+                                quantity: 1,
+                                imageUrl: productToAdd.imageUrl
+                            });
+                        }
+                    } catch (e) {
+                        console.error("Error adding/updating document:", e);
+                    }
+                } else if (target.classList.contains('removeFromCartBtn') && isAuthReady) {
+                    const docId = target.dataset.docId;
+                    try {
+                        await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/cart/${docId}`));
+                    } catch (e) {
+                        console.error("Error removing document:", e);
+                    }
+                } else if (target.classList.contains('openAiInfoBtn')) {
+                    const productId = target.dataset.productId;
+                    const product = products.find(p => p.id === productId);
+                    if (product) {
+                        aiProductTitle.textContent = product.name;
+                        aiProductDescription.textContent = product.description;
+                        aiResponseText.textContent = "Enter a prompt and click 'Generate' to learn more about this product!";
+                        aiPromptInput.value = "";
+                        toggleAiInfoModal(true);
+                    }
+                }
+            });
+
+            generateAiButton.addEventListener('click', async () => {
+                const prompt = aiPromptInput.value;
+                const productId = products.find(p => p.name === aiProductTitle.textContent).id;
+                const product = products.find(p => p.id === productId);
+
+                if (prompt.trim() === "") {
+                    aiResponseText.textContent = "Please enter a question to generate information.";
+                    return;
+                }
+                
+                generateAiButton.disabled = true;
+                generateAiButton.textContent = "Generating...";
+                aiResponseText.textContent = "Thinking...";
+
+                const response = await getAIInfo(product, prompt);
+                aiResponseText.textContent = response;
+
+                generateAiButton.disabled = false;
+                generateAiButton.textContent = "Generate";
+            });
+        };
+    </script>
+</body>
+</html>
